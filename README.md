@@ -9,7 +9,8 @@ This is a modified version of [FlashAttention 2.8.3](https://github.com/Dao-AILa
 # Installation
 The ``flash-attention`` folder contains the modified flash attention code. You can install it by running:
 ```bash
-pip install -e . --no-binary flash_attn --no-cache-dir --verbose --no-build-isolation
+bash install.sh
+```
 
 ## Usage Example
 flash_attn_func
