@@ -1,5 +1,4 @@
-#设置MAX_JOBS为32以加快编译速度
-export MAX_JOBS=32
+export MAX_JOBS=4
 
 cd ./flash-attention/
 python setup.py install

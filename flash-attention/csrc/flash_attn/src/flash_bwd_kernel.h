@@ -111,7 +111,7 @@ inline __device__ void compute_dq_dk_dv_1colblock(const Params &params, const in
         //printf("Backward keep_first active: n_block %d, m_block_max set to %d\n", n_block, m_block_max);
     }
 
-    //如果params.auto_prefill_slide=true，则报错，报错信息为 "auto_prefill_slide is not supported in backward pass"
+    //如果params.force_fa_decode=true，则报错，报错信息为 "force_fa_decode is not supported in backward pass"
 
     const index_t row_offset_q = binfo.q_offset(params.q_batch_stride, params.q_row_stride, bidb)
         + (m_block_max - 1) * kBlockM * params.q_row_stride + bidh * params.q_head_stride;

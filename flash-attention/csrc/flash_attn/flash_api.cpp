@@ -52,7 +52,7 @@ void set_params_fprop(Flash_fwd_params &params,
                       int window_size_right,
                       const float softcap,
                       int keep_first,
-                      bool auto_prefill_slide,
+                      bool force_fa_decode,
                       bool seqlenq_ngroups_swapped=false,
                       const bool unpadded_lse=false) {
 
@@ -147,7 +147,7 @@ void set_params_fprop(Flash_fwd_params &params,
     params.window_size_left = window_size_left;
     params.window_size_right = window_size_right;
     params.keep_first = keep_first;
-    params.auto_prefill_slide = auto_prefill_slide;
+    params.force_fa_decode = force_fa_decode;
 
     #ifdef FLASHATTENTION_DISABLE_LOCAL
         TORCH_CHECK(params.is_causal || (window_size_left < 0 && window_size_right < 0),
@@ -197,7 +197,7 @@ void set_params_dgrad(Flash_bwd_params &params,
                       int window_size_right,
                       const float softcap,
                         int keep_first,
-                        bool auto_prefill_slide,
+                        bool force_fa_decode,
                       bool deterministic,
                       const bool unpadded_lse) {
 
@@ -215,7 +215,7 @@ void set_params_dgrad(Flash_bwd_params &params,
                      window_size_right,
                      softcap,
                         keep_first,
-                        auto_prefill_slide,
+                        force_fa_decode,
                      false, // seqlenq_ngroups_swapped
                      unpadded_lse);
 
@@ -374,7 +374,7 @@ mha_fwd(at::Tensor &q,         // batch_size x seqlen_q x num_heads x round_mult
         int window_size_right,
         const float softcap,
         int keep_first,
-        bool auto_prefill_slide,
+        bool force_fa_decode,
         const bool return_softmax,
         std::optional<at::Generator> gen_) {
 
@@ -484,7 +484,7 @@ mha_fwd(at::Tensor &q,         // batch_size x seqlen_q x num_heads x round_mult
                      window_size_right,
                      softcap, 
                      keep_first,
-                     auto_prefill_slide
+                     force_fa_decode
                      );
 
     // Keep references to these tensors to extend their lifetime
@@ -550,7 +550,7 @@ mha_varlen_fwd(at::Tensor &q,  // total_q x num_heads x head_size, total_q := \s
                int window_size_right,
                const float softcap,
                 int keep_first,
-                bool auto_prefill_slide,
+                bool force_fa_decode,
                const bool return_softmax,
                std::optional<at::Generator> gen_) {
 
@@ -705,7 +705,7 @@ mha_varlen_fwd(at::Tensor &q,  // total_q x num_heads x head_size, total_q := \s
                      window_size_right,
                      softcap,
                      keep_first,
-                     auto_prefill_slide,
+                     force_fa_decode,
                      seqlenq_ngroups_swapped,
                      /*unpadded_lse*/true);
     params.total_q = total_q;
@@ -804,7 +804,7 @@ mha_bwd(const at::Tensor &dout,  // batch_size x seqlen_q x num_heads, x multipl
         int window_size_right,
         const float softcap,
         const int keep_first,
-        const bool auto_prefill_slide,
+        const bool force_fa_decode,
         const bool deterministic,
         std::optional<at::Generator> gen_,
         std::optional<at::Tensor> &rng_state) {
@@ -952,7 +952,7 @@ mha_bwd(const at::Tensor &dout,  // batch_size x seqlen_q x num_heads, x multipl
                      window_size_right,
                      softcap,
                      keep_first,
-                     auto_prefill_slide,
+                     force_fa_decode,
                      deterministic,
                      /*unpadded_lse*/false);
     params.dq_accum_split_stride = !deterministic ? 0 : dq_accum.stride(0);
@@ -1019,7 +1019,7 @@ mha_varlen_bwd(const at::Tensor &dout,  // total_q x num_heads, x head_size
                int window_size_right,
                const float softcap,
                const int keep_first,
-               bool auto_prefill_slide,
+               bool force_fa_decode,
                const bool deterministic,
                std::optional<at::Generator> gen_,
                std::optional<at::Tensor> &rng_state) {
@@ -1184,7 +1184,7 @@ mha_varlen_bwd(const at::Tensor &dout,  // total_q x num_heads, x head_size
                      window_size_right,
                      softcap,
                      keep_first,
-                     auto_prefill_slide,
+                     force_fa_decode,
                      deterministic,
                      /*unpadded_lse*/true);
     params.dq_accum_split_stride = !deterministic ? 0 : dq_accum.stride(0);
@@ -1249,7 +1249,7 @@ mha_fwd_kvcache(at::Tensor &q,                 // batch_size x seqlen_q x num_he
                 int window_size_right,
                 const float softcap,
                 int keep_first,
-                bool auto_prefill_slide,
+                bool force_fa_decode,
                 bool is_rotary_interleaved,   // if true, rotary combines indices 0 & 1, else indices 0 & rotary_dim / 2
                 int num_splits
                 ) {
@@ -1380,7 +1380,7 @@ mha_fwd_kvcache(at::Tensor &q,                 // batch_size x seqlen_q x num_he
                      window_size_right,
                      softcap,
                      keep_first,
-                     auto_prefill_slide
+                     force_fa_decode
                      );
 
     at::Tensor k, v, k_padded, v_padded;

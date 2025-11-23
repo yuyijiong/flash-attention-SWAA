@@ -40,7 +40,7 @@ for sliding_window in [-1,100,1000,4000,8000]:
         causal=True,
         window_size=(sliding_window, sliding_window), 
         keep_first=4, # for example, we keep the attention to the first 4 tokens
-        auto_prefill_slide=True, # automatically switch to full attention when q_length=1
+        force_fa_decode=True, # automatically switch to full attention when q_length=1
     )
 
     end_time = time.time()
@@ -98,7 +98,7 @@ attn_output = flash_attn_varlen_func(
     causal=True,
     window_size=(sliding_window, sliding_window),
     keep_first=4,  # Keep attention to the first 4 tokens
-    auto_prefill_slide=True,  # Automatically switch to full attention when q_length=1
+    force_fa_decode=True,  # Automatically switch to full attention when q_length=1
 )
 
 print(f"Output shape: {attn_output.shape}")

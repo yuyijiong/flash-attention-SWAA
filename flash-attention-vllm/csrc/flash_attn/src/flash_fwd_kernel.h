@@ -80,8 +80,8 @@ inline __device__ void compute_attn_1rowblock(const Params &params, const int bi
     const BlockInfo</*Varlen=*/!Is_even_MN> binfo(params, bidb);
     if (m_block * kBlockM >= binfo.actual_seqlen_q) return;
 
-     // 如果 params.auto_prefill_slide=true，且 actual_seqlen_q==1，则将 window_size_left 设置为 最大，相当于full attention
-     const int runtime_window_size_left = (params.auto_prefill_slide && binfo.actual_seqlen_q == 1)
+     // 如果 params.force_fa_decode=true，且 actual_seqlen_q==1，则将 window_size_left 设置为 最大，相当于full attention
+     const int runtime_window_size_left = (params.force_fa_decode && binfo.actual_seqlen_q == 1)
      ? (binfo.actual_seqlen_k - 1)
      : params.window_size_left;
 
@@ -606,8 +606,8 @@ inline __device__ void compute_attn_1rowblock_splitkv(const Params &params, cons
     // if (threadIdx.x == 0 && blockIdx.y == 1 && blockIdx.z == 0) { printf("params.knew_ptr = %p, seqlen_k_cache + seqlen_knew = %d\n", params.knew_ptr, binfo.seqlen_k_cache + (params.knew_ptr == nullptr ? 0 : params.seqlen_knew)); }
     if (m_block * kBlockM >= binfo.actual_seqlen_q) return;
 
-     // 如果 params.auto_prefill_slide=true，且 actual_seqlen_q==1，则将 window_size_left 设置为 最大，相当于full attention
-     const int runtime_window_size_left = params.auto_prefill_slide && binfo.actual_seqlen_q == 1 ? binfo.actual_seqlen_k - 1 : params.window_size_left;
+     // 如果 params.force_fa_decode=true，且 actual_seqlen_q==1，则将 window_size_left 设置为 最大，相当于full attention
+     const int runtime_window_size_left = params.force_fa_decode && binfo.actual_seqlen_q == 1 ? binfo.actual_seqlen_k - 1 : params.window_size_left;
 
      const int n_blocks_per_split = ((params.seqlen_k + kBlockN - 1) / kBlockN + num_n_splits - 1) / num_n_splits;
     const int n_block_min = !Is_local
